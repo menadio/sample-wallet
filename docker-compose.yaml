@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+
+  database:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: samplewallet
+
+  adminer:
+    image: adminer
+    ports:
+      - 8080:8080
+
+  php-server:
+    build:
+      context: .
+      dockerfile: dockerfiles/php.dockerfile
+    volumes:
+      - ./src:/var/www/html:delegated
+
+  web-server:
+    build:
+      context: .
+      dockerfile: dockerfiles/nginx.dockerfile
+    volumes:
+      - ./src:/var/www/html
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "8011:80"
+    depends_on:
+      - php-server
